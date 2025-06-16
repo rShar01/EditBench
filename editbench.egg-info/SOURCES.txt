@@ -1,9 +1,0 @@
-README.md
-pyproject.toml
-editbench/__init__.py
-editbench/evaluation.py
-editbench.egg-info/PKG-INFO
-editbench.egg-info/SOURCES.txt
-editbench.egg-info/dependency_links.txt
-editbench.egg-info/requires.txt
-editbench.egg-info/top_level.txt
