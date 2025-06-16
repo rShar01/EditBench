@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "editbench"
+version = "0.1.0"
+description = "Code for generation and evaluation for editbench"
+authors = [{name = "Wayne Chi", email = "waynechi@cs.cmu.edu"}, {name = "Ryan Shar", email = "ryan.shar01@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "datasets>=3.6.0",
+    "dotenv>=0.9.9",
+    "tqdm"
+    # "numpy>=1.20.0",
+    # "requests>=2.25.0",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["editbench*"]

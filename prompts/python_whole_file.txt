@@ -1,0 +1,19 @@
+Generate a new implementation of the following code based on the user instruction:
+
+The Original code (to be modified):
+
+```python
+{original_code}
+```
+
+The user instruction is:
+{user}
+
+And they highlighted this section to be changed:
+```python
+{highlighted}
+```
+
+Please only change the highlighted section and leave the rest of the code unchanged.
+Please output the entire code file.
+Respond only in a python code block beginning with ```python.
