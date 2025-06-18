@@ -80,11 +80,13 @@ def create_question_folders(test_directory):
                 f.write(question['package_json'])
             with open(curr_dir / "jest-setup.js", "w") as f:
                 f.write(question['jest_setup'])
+            with open(curr_dir / "babel.config.json", "w") as f:
+                f.write(question['babel_config'])
             
             test_folder = curr_dir / "tests"
             test_folder.mkdir()
             if 'react' in question['original_code']:
-                with open(test_folder / "test_code.test.js", "w") as f:
+                with open(test_folder / "test_code.test.jsx", "w") as f:
                     f.write(question['test_code'])
             else:
                 with open(test_folder / "test_code.test.js", "w") as f:
@@ -120,8 +122,15 @@ def populate_question_folders(generation_function, prompt_create_fn, test_direct
             with open(dir / "implementation1.py", "w") as f:
                 f.write(generated_code)
         elif question["programming_language"] == "javascript":
-            with open(dir / "implementation1.js", "w") as f:
+            # if 'react' in question['original_code']:
+            #     with open(dir / "implementation1.jsx", "w") as f:
+            #         f.write(generated_code)
+            # else:
+            #     with open(dir / "implementation1.js", "w") as f:
+            #         f.write(generated_code)
+            with open(dir / "implementation1.jsx", "w") as f:
                 f.write(generated_code)
+
     enable_progress_bar()
 
 def generate_editbench(generation_function, prompt_create_fn, test_directory):
