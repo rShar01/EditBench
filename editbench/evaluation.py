@@ -54,7 +54,7 @@ def modify_test_utils_content(file_content):
     
     return new_content 
 
-def create_question_folders(test_directory):
+def create_question_folders(test_directory, js_only=False):
     data = load_dataset("waynechi/project-edit", split="test")
     existing_ids = [int(d.name) for d in test_directory.glob("*")]
 
@@ -62,6 +62,8 @@ def create_question_folders(test_directory):
         if question['problem_id'] in existing_ids:
             continue
         
+        if question["programming_language"] == "python" and js_only:
+            continue
         curr_dir = test_directory / str(question['problem_id'])
         curr_dir.mkdir()
 
@@ -80,8 +82,10 @@ def create_question_folders(test_directory):
                 f.write(question['package_json'])
             with open(curr_dir / "jest-setup.js", "w") as f:
                 f.write(question['jest_setup'])
-            with open(curr_dir / "babel.config.json", "w") as f:
-                f.write(question['babel_config'])
+            
+            if question["babel_config"]:
+                with open(curr_dir / "babel.config.json", "w") as f:
+                    f.write(question['babel_config'])
             
             test_folder = curr_dir / "tests"
             test_folder.mkdir()
@@ -101,10 +105,10 @@ def create_question_folders(test_directory):
                     f.write(file_content)
 
         else:
-            # what is this
+            print(f"Unsupported programming language: {question['programming_language']}")
             continue
 
-def populate_question_folders(generation_function, prompt_create_fn, test_directory):
+def populate_question_folders(generation_function, prompt_create_fn, test_directory, js_only=False):
     data = load_dataset("waynechi/project-edit", split="test")
     disable_progress_bar()
     for question in tqdm(data, desc="Generating code for questions"):
@@ -119,6 +123,8 @@ def populate_question_folders(generation_function, prompt_create_fn, test_direct
 
         dir = test_directory / str(id)
         if question["programming_language"] == "python":
+            if js_only:
+                continue
             with open(dir / "implementation1.py", "w") as f:
                 f.write(generated_code)
         elif question["programming_language"] == "javascript":
@@ -133,7 +139,7 @@ def populate_question_folders(generation_function, prompt_create_fn, test_direct
 
     enable_progress_bar()
 
-def generate_editbench(generation_function, prompt_create_fn, test_directory):
+def generate_editbench(generation_function, prompt_create_fn, test_directory, js_only=False):
     output_dir = Path(test_directory)
 
     if output_dir.exists() and not output_dir.is_dir():
@@ -142,8 +148,8 @@ def generate_editbench(generation_function, prompt_create_fn, test_directory):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
     
-    create_question_folders(output_dir)
-    populate_question_folders(generation_function, prompt_create_fn, output_dir)
+    create_question_folders(output_dir, js_only=js_only)
+    populate_question_folders(generation_function, prompt_create_fn, output_dir, js_only=js_only)
 
 
 

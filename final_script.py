@@ -45,8 +45,8 @@ def example_move(prompt, qid):
 
 
 # 3: generate and evaluate
-generate_editbench(example_move, prompt_constructor, "/root/hf_editbench")
-test_editbench("/root/hf_editbench", "output.json")
+generate_editbench(example_move, prompt_constructor, "/root/hf_editbench", js_only=True)
+# test_editbench("/root/hf_editbench", "output.json")
 
 
 # 4? give a function to only generate code snippets to a directory to make #2 example_move easier 
