@@ -11,31 +11,21 @@ def prompt_constructor(original_code_content, highlighted_section, user_instruct
                         
 
 
-# 2: define a function to generate code snippets given a prompt or question
-def example_generate(prompt, qid):
-    example_llm_response = """
-```python
-def example_function():
-    print(1 + 2)
-example_function()
-```"""
-    # Returned code should be a valid Python code snippet
-    return example_llm_response.replace("```python\n", "").replace("\n```", "")
-
-def example_move(prompt, qid):
+# 2: define a function to 
+def move_existing_generations(prompt, qid):
     # if the model generation for each question is stored in a different location, use qid to locate rather than regenerate
     # In this example, I am loading generated files from gpt-o3-mini
-    with open("og_mappings.txt") as f:
+    with open("pairid_to_qid_mappings.txt") as f:
         og_mappings = loads(f.read())
     pair_id = og_mappings[str(qid)]
 
     try:
-        example_path = f"/project/EditBench/EditBenchEvaluations/EditBench_generations/gpt-o3-mini/{pair_id}.py"
+        example_path = f"/project/EditBenchEvaluations/EditBench_generations/gpt-o3-mini/{pair_id}.py"
         with open(example_path, "r") as f:
             content = f.read()
     except Exception:
         try:
-            example_path = f"/project/EditBench/EditBenchEvaluations/EditBench_generations_js/gpt-o3-mini/{pair_id}.js"
+            example_path = f"/project/EditBenchEvaluations/EditBench_generations_js/gpt-o3-mini/{pair_id}.js"
             with open(example_path, "r") as f:
                 content = f.read()
         except Exception:
@@ -45,8 +35,5 @@ def example_move(prompt, qid):
 
 
 # 3: generate and evaluate
-generate_editbench(example_move, prompt_constructor, "/root/hf_editbench", js_only=True)
+generate_editbench(move_existing_generations, "prompts/python_whole_file.txt",)
 # test_editbench("/root/hf_editbench", "output.json")
-
-
-# 4? give a function to only generate code snippets to a directory to make #2 example_move easier 

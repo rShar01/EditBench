@@ -7,11 +7,11 @@ The Original code (to be modified):
 ```
 
 The user instruction is:
-{user}
+{instruction}
 
 And they highlighted this section to be changed:
 ```python
-{highlighted}
+{highlighted_code}
 ```
 
 Please only change the highlighted section and leave the rest of the code unchanged.

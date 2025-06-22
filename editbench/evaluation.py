@@ -108,17 +108,22 @@ def create_question_folders(test_directory, js_only=False):
             print(f"Unsupported programming language: {question['programming_language']}")
             continue
 
-def populate_question_folders(generation_function, prompt_create_fn, test_directory, js_only=False):
+def populate_question_folders(generation_function, prompt_file, test_directory, js_only=False):
     data = load_dataset("waynechi/project-edit", split="test")
+    with open(prompt_file, "r") as f:
+        prompt_template = f.read()
     disable_progress_bar()
     for question in tqdm(data, desc="Generating code for questions"):
     # for dir in tqdm(list(test_directory.glob("*")), desc="Generating code for directories"):
         # id = int(dir.name)
         # question = data.filter(lambda x: x['problem_id'] == id)[0]
         id = question['problem_id']
-        prompt = prompt_create_fn(question["original_code"],\
-                         question["highlighted_code"],\
-                         question["instruction"])
+        
+        prompt = prompt_template.format(
+            original_code=question["original_code"],
+            highlighted_code=question["highlighted_code"],
+            instruction=question["instruction"]
+        )
         generated_code = generation_function(prompt, id)
 
         dir = test_directory / str(id)
@@ -139,7 +144,7 @@ def populate_question_folders(generation_function, prompt_create_fn, test_direct
 
     enable_progress_bar()
 
-def generate_editbench(generation_function, prompt_create_fn, test_directory, js_only=False):
+def generate_editbench(generation_function, prompt_file, test_directory='/root/editbench_sandboxes', js_only=False):
     output_dir = Path(test_directory)
 
     if output_dir.exists() and not output_dir.is_dir():
@@ -149,7 +154,7 @@ def generate_editbench(generation_function, prompt_create_fn, test_directory, js
         output_dir.mkdir(parents=True)
     
     create_question_folders(output_dir, js_only=js_only)
-    populate_question_folders(generation_function, prompt_create_fn, output_dir, js_only=js_only)
+    populate_question_folders(generation_function, prompt_file, output_dir, js_only=js_only)
 
 
 
