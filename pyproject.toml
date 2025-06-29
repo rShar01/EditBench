@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Code for generation and evaluation for editbench"
 authors = [{name = "Wayne Chi", email = "waynechi@cs.cmu.edu"}, {name = "Ryan Shar", email = "ryan.shar01@gmail.com"}]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 dependencies = [
     "datasets>=3.6.0",
     "dotenv>=0.9.9",
