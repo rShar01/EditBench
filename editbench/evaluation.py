@@ -76,15 +76,19 @@ def create_question_folders(test_directory, js_only=False):
                 f.write(question['conftest']) 
             with open(curr_dir / "test_code.py", "w") as f:
                 f.write(question['test_code']) 
+            with open(curr_dir / "original_code.py", "w") as f:
+                f.write(question['original_code'])
 
         elif question["programming_language"] == "javascript":
             with open(curr_dir / "package.json", "w") as f:
                 f.write(question['package_json'])
             with open(curr_dir / "jest-setup.js", "w") as f:
                 f.write(question['jest_setup'])
-            
+            with open(curr_dir / "original_code.js", "w") as f:
+                f.write(question['original_code'])
+           
             if question["babel_config"]:
-                with open(curr_dir / "babel.config.json", "w") as f:
+                with open(curr_dir / "babel.config.js", "w") as f:
                     f.write(question['babel_config'])
             
             test_folder = curr_dir / "tests"
