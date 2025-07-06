@@ -1,33 +1,104 @@
+# EditBench
 
+A comprehensive code editing benchmark framework for evaluating and testing code generation models.
 
-Steps to run
-1. Create each question's sandbox
-- To create these sandboxes, we provide the `generate_editbench(LLM_gen_func, prompt_file_name)` function which requires 2 arguments
-    - prompt_file_name: the path to the prompt. 
-        - Each prompt has access to three variables to provide context --- `original_code` for the original code file contents, `highlighted_code` for the section of code highlighted by the user, and `instruction` for the user's instruction for the highlighted section.
-        - See prompts/python_whole_file.txt for a python example where the LLM must regenerate the entire code file 
-    - LLM_gen_func: a function that takes two arguments prompt (str) and a question_id (int) and returns a string for the *complete file*
-        - The prompt string is the one provided in prompt_file_name
-        - Both prompt and question_id are provided so that you can choose to generate on the fly or copy files that were pre-generated
-        - See move_example.py for an example of moving existing generations and generate_example.py for generating on the fly 
-- This function will create the sandboxes within the docker container at /root/editbench_sandboxes
-- [optional] to have the sandboxes persist outside of the docker container, add a path to TODO:MAKE THIS AN ENV VARIABLE
+## Overview
 
-2. Build the docker environment and run the container
-- `cd docker-stuff` and run `bash build.sh`
-- in `run_container.sh` change the `<PATH_TO_THIS_REPO_PARENT>` to the local parent directory of this repo. E.g. if my current path was `/home/user/some_parent/editbench` then I would replace `<PATH_TO_THIS_REPO_PARENT>` with `/home/user/some_parent`.
-    - In the future this should just be the path to repo, but since we (Valerie, Wayne, Ryan) want to access the existing generations its easier to just make it the parent and have the [EditBenchEvaluations](https://github.com/rShar01/EditBenchEvaluationsEditBenchEvaluations) repo in the same `some_parent` directory
-- run `bash run_container.sh` to run the docker container
+EditBench provides a robust framework for generating code snippets and evaluating them in isolated Docker containers. The framework includes all necessary functionality within the `editbench` package and can be easily executed using the provided `run_editbench.sh` shell script.
 
-3. Create your pip environment in docker
-- Go to this repo within the docker container: `cd /project/EditBench`
-- Create the python env: `uv venv .docker-venv`
-- Install the packages: `uv pip install -e .`
-- Run your script that contains the generation and testing function: `python move_example.py`
+Key features:
+- Automated code generation and evaluation pipeline
+- Docker-based isolation for secure testing
+- Configurable environment for different models and setups
+- Streamlined workflow for benchmark experiments
 
+## Configuration
 
-TODO: make this optional stuff env variables
-- Change `/mnt/d/working/EditBench/generation_mnt` to the local path you want to use for your LLM generated code. If this is not set, generations may be lost after the docker container is closed.
-- Optional paths to ensure the docker container does not run out of space
-    - Change `/mnt/d/.cache` to some local directory to act as a cache
-    - Change `/home/rshar/hf_editbench` to a local directory to store the question sandboxes
+All configuration and environment variables are defined in the `editbench.config` file. The following variables need to be set:
+
+| Variable | Description |
+|----------|-------------|
+| `PROJECT_DIR` | Absolute path to this project directory |
+| `DEFAULT_SCRIPT` | The main Python script to run inside the Docker container |
+| `IMAGE_NAME` | Docker image name for this run |
+| `PYTHON_VERSION` | Python version for DEFAULT_SCRIPT |
+| `EVAL_MODEL` | Model name to evaluate |
+| `HF_TOKEN` | Your Hugging Face token for calling `load_dataset` |
+
+## Running Experiments
+
+All experiments are executed using the `run_editbench.sh` shell script, which serves as the main command-line interface for the framework.
+
+### Available Commands
+
+```bash
+# Build Docker container and run DEFAULT_SCRIPT
+./run_editbench
+
+# Force rebuild the Docker container
+./run_editbench build
+
+# Create an interactive session (useful for debugging)
+./run_editbench shell
+
+# Run a specific script inside the container
+./run_editbench run some_script.py
+```
+
+### Quick Test Setup
+
+To test runs with existing GPT-o3-mini generations:
+1. Set `DEFAULT_SCRIPT` to `test_only_example.py`
+2. Set `EVAL_MODEL` to `gpt-o3-mini`
+3. Configure other fields with your local values
+
+## Writing Code
+
+Experiments run inside Docker containers, and the `editbench` package provides convenient functions for running experiments. The two main functions are:
+
+- **`generate_editbench`** - Generates code files for the specified model
+- **`test_editbench`** - Runs tests for the specified model's generations
+
+### Generating Code with Your Model
+
+The `generate_editbench(fn, prompt_file)` function handles code generation for your model.
+
+#### Generated File Organization
+- All generated code snippets are stored in `generations/`
+- Files are organized as `generations/{model_name}/{question_id}`
+
+#### Function Parameters
+- **`fn`** - A function that takes a prompt string and returns the generated code snippet. Create a wrapper function for your model's inference call and pass it here.
+- **`prompt_file`** - The filename containing the prompt template (e.g., `prompts/python_whole_file.txt`)
+
+#### Available Prompt Variables
+The prompt can incorporate the following variables:
+- `original_code` - The original code file
+- `highlighted_code` - The highlighted code sections
+- `instruction` - User instructions for the highlighted section
+
+#### Usage Example
+Call `generate_editbench` with your generation function and prompt file to create all generations in `generations/{your_model}`. See `generate_only_example.py` for a complete implementation example.
+
+### Running Tests
+
+The `test_editbench(out_file)` function runs comprehensive tests on your model's generations.
+
+#### Prerequisites
+- All generations for `EVAL_MODEL` must be present in the `generations/` directory
+
+#### Parameters
+- **`out_file`** - Output filename for storing results (use `.json` extension)
+
+#### Process
+The function automatically:
+1. Creates question sandboxes
+2. Runs evaluations
+3. Aggregates and saves results
+
+#### Usage
+```python
+test_editbench("results.json")
+```
+
+This will process all generations for your specified model and output comprehensive evaluation results.
