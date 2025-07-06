@@ -1,5 +1,5 @@
 docker run -it --rm \
-    --mount type=bind,src=<PATH_TO_THIS_REPO_PARENT>,dst=/project \
+    --mount type=bind,src=/Users/rshar/school/cmu/research/EditBench/,dst=/project \
  editbench:latest /bin/bash
 # <PATH_TO_THIS_REPO_PARENT>
 #  --mount type=bind,src=/home/rshar/hf_editbench,dst=/root/editbench_sandboxes \
