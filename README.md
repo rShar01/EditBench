@@ -32,6 +32,10 @@ bash run_editbench.sh
 
 You should see the results in `output.json`
 
+## Benchmark Results
+
+TODO
+
 ## Configuration
 
 All configuration and environment variables are defined in the `editbench.config` file. 
@@ -110,9 +114,6 @@ test_editbench("results.json")
 
 This will process all generations for your specified model and output comprehensive evaluation results.
 
-## Benchmark Results
-
-TODO
 
 ## Contributing
 
@@ -127,7 +128,7 @@ We welcome contributions! Please feel free to submit a Pull Request. For major c
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache 2.0 License.
 
 ## Acknowledgments
 
