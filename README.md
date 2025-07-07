@@ -1,29 +1,46 @@
 # EditBench
 
-A comprehensive code editing benchmark framework for evaluating and testing code generation models.
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/iamwaynechi?style=flat-square&logo=x&label=Wayne%20Chi)](https://twitter.com/iamwaynechi)
+[![GitHub](https://img.shields.io/badge/waynchi-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/waynchi)
+[![Website](https://img.shields.io/badge/waynechi.com-4285F4?style=flat-square&logo=google-chrome&logoColor=white)](https://www.waynechi.com/)
+
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/valeriechen_?style=flat-square&logo=x&label=Valerie%20Chen)](https://twitter.com/valeriechen_)
+[![GitHub](https://img.shields.io/badge/valeriechen-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/valeriechen)
+[![Website](https://img.shields.io/badge/valeriechen.github.io-4285F4?style=flat-square&logo=google-chrome&logoColor=white)](https://valeriechen.github.io/)
+
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/RyanShar01?style=flat-square&logo=x&label=Ryan%20Shar)](https://twitter.com/RyanShar01)
+[![GitHub](https://img.shields.io/badge/rShar01-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/rShar01)
+[![Website](https://img.shields.io/badge/rShar01.github.io-4285F4?style=flat-square&logo=google-chrome&logoColor=white)](https://rShar01.github.io/)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
+EditBench is a code editing benchmark built on real code edits from [Copilot Arena](https://github.com/lmarena/copilot-arena).  
+The dataset can be found in [HuggingFace](https://huggingface.co/datasets/copilot-arena/EditBench).
 
 ## Overview
 
-EditBench provides a robust framework for generating code snippets and evaluating them in isolated Docker containers. The framework includes all necessary functionality within the `editbench` package and can be easily executed using the provided `run_editbench.sh` shell script.
+The EditBench repository provides a simple method for generating code snippets and evaluating them in an isolated Docker container. 
 
-Key features:
-- Automated code generation and evaluation pipeline
-- Docker-based isolation for secure testing
-- Configurable environment for different models and setups
-- Streamlined workflow for benchmark experiments
+### Quick Setup
+
+To run with our pregenerated results for `gpt-o3-mini`, simply run:
+
+```bash
+bash run_editbench.sh
+```
+
+You should see the results in `output.json`
 
 ## Configuration
 
-All configuration and environment variables are defined in the `editbench.config` file. The following variables need to be set:
+All configuration and environment variables are defined in the `editbench.config` file. 
+To run new generations, please set the following variables:
 
 | Variable | Description |
 |----------|-------------|
-| `PROJECT_DIR` | Absolute path to this project directory |
-| `DEFAULT_SCRIPT` | The main Python script to run inside the Docker container |
-| `IMAGE_NAME` | Docker image name for this run |
-| `PYTHON_VERSION` | Python version for DEFAULT_SCRIPT |
-| `EVAL_MODEL` | Model name to evaluate |
-| `HF_TOKEN` | Your Hugging Face token for calling `load_dataset` |
+| `TESTING_SCRIPT` | The main Python script to run inside the Docker container |
+| `EVAL_MODEL` | Model name (i.e, folder in generations) to evaluate |
 
 ## Running Experiments
 
@@ -32,25 +49,15 @@ All experiments are executed using the `run_editbench.sh` shell script, which se
 ### Available Commands
 
 ```bash
-# Build Docker container and run DEFAULT_SCRIPT
-./run_editbench
+# Build Docker container and run TESTING_SCRIPT
+bash ./run_editbench
 
 # Force rebuild the Docker container
-./run_editbench build
+bash ./run_editbench build
 
 # Create an interactive session (useful for debugging)
-./run_editbench shell
-
-# Run a specific script inside the container
-./run_editbench run some_script.py
+bash ./run_editbench shell
 ```
-
-### Quick Test Setup
-
-To test runs with existing GPT-o3-mini generations:
-1. Set `DEFAULT_SCRIPT` to `test_only_example.py`
-2. Set `EVAL_MODEL` to `gpt-o3-mini`
-3. Configure other fields with your local values
 
 ## Writing Code
 
@@ -102,3 +109,35 @@ test_editbench("results.json")
 ```
 
 This will process all generations for your specified model and output comprehensive evaluation results.
+
+## Benchmark Results
+
+TODO
+
+## Contributing
+
+We welcome contributions! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Development Guidelines
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Thanks to all contributors who have helped shape EditBench
+- Special thanks to the open source community for continuous support
+
+## Contact
+
+For questions and feedback, please open an issue or feel free to reach out directly!
+
+## Citation
+
+TODO

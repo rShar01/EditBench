@@ -35,34 +35,7 @@ RUN echo "export NVM_DIR=\"/root/.nvm\"" >> ~/.bashrc && \
 WORKDIR /project
 
 # Create entrypoint script
-RUN cat > /entrypoint.sh << 'EOF'
-#!/bin/bash
-set -e
-
-# Get Python version from environment or use default
-PYTHON_VER=${PYTHON_VERSION:-3.12}
-
-# Setup uv environment if it doesn't exist or is broken
-if [ ! -d ".docker_venv" ] || [ ! -f ".docker_venv/bin/python3" ] || ! .docker_venv/bin/python3 --version &>/dev/null; then
-    echo "Setting up Python environment with uv (Python $PYTHON_VER)..."
-    rm -rf .docker_venv  # Remove any broken environment
-    uv venv --python $PYTHON_VER .docker_venv
-fi
-
-# Activate the environment
-source .docker_venv/bin/activate
-
-# Install dependencies if pyproject.toml or setup.py exists
-if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-    echo "Installing Python dependencies..."
-    uv pip install -e .
-fi
-
-# Execute the command passed to the container
-exec "$@"
-EOF
-
-# Make entrypoint script executable
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Set the entrypoint

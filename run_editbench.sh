@@ -5,8 +5,8 @@
 
 set -e
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-CONFIG_FILE="$SCRIPT_DIR/editbench.config"
+PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+CONFIG_FILE="$PROJECT_DIR/editbench.config"
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,8 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default values
-PROJECT_DIR=""
-DEFAULT_SCRIPT="run_script.py"
+TESTING_SCRIPT="run_script.py"
 IMAGE_NAME="editbench:latest"
 PYTHON_VERSION="3.12"
 
@@ -25,40 +24,15 @@ load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
     else
-        echo -e "${YELLOW}No config found. Creating editbench.config...${NC}"
-        create_example_config
-        echo -e "${RED}Please edit editbench.config with your project path and run again.${NC}"
+        echo -e "${RED} editbench.config file not found. Please create a editbench.config and run again.${NC}"
         exit 1
     fi
-}
-
-create_example_config() {
-    cat > "$CONFIG_FILE" << 'EOF'
-# EditBench Docker Configuration
-# Edit the values below for your setup
-
-# PROJECT_DIR: Absolute path to your project directory
-PROJECT_DIR="/path/to/your/project"
-
-# DEFAULT_SCRIPT: The main Python script to run
-DEFAULT_SCRIPT="run_script.py"
-
-# IMAGE_NAME: Docker image name
-IMAGE_NAME="editbench:latest"
-
-# PYTHON_VERSION: Python version for environment
-PYTHON_VERSION="3.12"
-
-# Add any custom variables here - they'll automatically be available in your scripts!
-# CUSTOM_VAR="some_value"
-# API_KEY="your_api_key"
-# DATABASE_URL="sqlite:///app.db"
-EOF
 }
 
 # Build dynamic environment variable flags from config file
 build_env_flags() {
     local env_flags=""
+    local hf_token_found=false
     
     # Always add WORKDIR (not from config)
     env_flags+=" --env WORKDIR=/project"
@@ -79,21 +53,26 @@ build_env_flags() {
                 # Remove quotes if present
                 var_value=$(echo "$var_value" | sed 's/^"//;s/"$//')
                 
+                # Check if this is HF_TOKEN
+                if [[ "$var_name" == "HF_TOKEN" ]]; then
+                    hf_token_found=true
+                fi
+                
                 # Add to environment flags
                 env_flags+=" --env ${var_name}=${var_value}"
             fi
         done < "$CONFIG_FILE"
     fi
     
+    # If HF_TOKEN wasn't found in config, try to use the default from environment
+    if [ "$hf_token_found" = false ] && [ -n "$HF_TOKEN" ]; then
+        env_flags+=" --env HF_TOKEN=${HF_TOKEN}"
+    fi
+    
     echo "$env_flags"
 }
 
 validate_config() {
-    if [ -z "$PROJECT_DIR" ] || [ "$PROJECT_DIR" = "/path/to/your/project" ]; then
-        echo -e "${RED}Please update PROJECT_DIR in editbench.config${NC}"
-        exit 1
-    fi
-    
     if [ ! -d "$PROJECT_DIR" ]; then
         echo -e "${RED}Project directory does not exist: $PROJECT_DIR${NC}"
         exit 1
@@ -109,13 +88,13 @@ build_if_needed() {
         echo -e "${YELLOW}Docker image not found. Building...${NC}"
         docker build -t "$IMAGE_NAME" \
             --build-arg PYTHON_VERSION="$PYTHON_VERSION" \
-            "$SCRIPT_DIR"
+            "$PROJECT_DIR"
         echo -e "${GREEN}✓ Build complete${NC}"
     fi
 }
 
 run_default() {
-    echo -e "${GREEN}Running: $DEFAULT_SCRIPT${NC}"
+    echo -e "${GREEN}Running: $TESTING_SCRIPT${NC}"
     echo -e "${BLUE}Project: $PROJECT_DIR${NC}"
     
     # Get dynamic environment flags
@@ -127,7 +106,7 @@ run_default() {
     docker run --rm \
         --mount type=bind,src="$PROJECT_DIR",dst=/project \
         $ENV_FLAGS \
-        "$IMAGE_NAME" python3 "$DEFAULT_SCRIPT"
+        "$IMAGE_NAME" python3 "/project/$TESTING_SCRIPT"
 }
 
 # Simple usage - if no arguments, just run the default
@@ -161,14 +140,14 @@ case "${1:-}" in
         echo -e "${GREEN}Building Docker image...${NC}"
         docker build -t "$IMAGE_NAME" \
             --build-arg PYTHON_VERSION="$PYTHON_VERSION" \
-            "$SCRIPT_DIR"
+            "$PROJECT_DIR"
         echo -e "${GREEN}✓ Build complete${NC}"
         ;;
     "run")
         load_config
         validate_config
         build_if_needed
-        SCRIPT_TO_RUN="${2:-$DEFAULT_SCRIPT}"
+        SCRIPT_TO_RUN="${2:-$TESTING_SCRIPT}"
         echo -e "${GREEN}Running: $SCRIPT_TO_RUN${NC}"
         
         # Get dynamic environment flags
