@@ -142,10 +142,11 @@ def parse_results(output_file):
     
     n_tests = len(results)
     results_floats = [v for k, v in results.items()]
+    num_perfect = sum(1 for item in results_floats if item == 1.0)
     print("======== Results ========")
     print(f"Number of tests: {n_tests}")
-    print(f"{sum(1 for item in results_floats if item == 1.0)} perfect")
-    print(f"{sum(v for v in results_floats)/n_tests} average score")
+    print(f"{num_perfect} perfect")
+    print(f"{num_perfect / n_tests * 100:.2f}% pass rate")
 
     with open(output_file, "w") as f:
         json.dump(results, f, indent=4, sort_keys=True)
